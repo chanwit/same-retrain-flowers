@@ -1,0 +1,45 @@
+name: run
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check out
+        uses: actions/checkout@v2
+      - name: install tool binaries
+        shell: bash
+        run: |
+          curl -L0 https://get.sameproject.org | bash -
+          same --version
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          sudo mv ./kubectl /usr/local/bin/kubectl
+      - name: set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: install pip
+        run: |
+          python -m pip install --upgrade pip
+      - name: install required packages and Kubeflow Pipeline compiler
+        run: |
+          python3 -m pip install -U setuptools wheel pip
+          pip install kfp
+      - name: setup credentails
+        shell: bash
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+          cat ~/.kube/config
+          mkdir -p ~/.same
+          touch ~/.same/config
+          echo "activecontext: " >> ~/.same/config.yaml
+      - name: run same program
+        shell: bash
+        run: |
+          same init --ready
+          same program run --file same.yaml --experiment-name "${{ github.repository }}" --run-name "${{ github.sha }}"

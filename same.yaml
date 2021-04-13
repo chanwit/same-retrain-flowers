@@ -1,0 +1,57 @@
+apiVersion: projectsame.io/v1alpha1
+metadata:
+    name: TF2RetrainFlowers
+    sha: cafebabe
+    labels:
+        label1: value1
+    version: 1.0.4
+bases:
+    - base
+envfiles:
+    - .env
+resources:
+    provider: azure
+    cluster_profile: default
+    # cluster_profile: highMem
+    # cluster_profile: GPU
+    cluster_name: foobaz
+    namespace: same_namespace
+    disks:
+        - name: data_disk
+          size: 10Gi
+          volumeMount:
+              mountPath: "/mnt/data_disk"
+              name: volume
+        - name: model_disk
+          size: 10Gi
+          volumeMount:
+              mountPath: "/mnt/model_disk"
+              name: volume
+workflow:
+    type: kubeflow
+    parameters:
+        kubeflowVersion: 1.2
+        kubeflowNamespace: kubeflow # Only support Kubeflow namespace
+        services:
+            - tensorflow_crd:2.1
+            - pytorch_crd:1.8
+    # services:
+    #   - tensorflow:2.2
+    #   - katib:3.1
+    #   - feast:1.2
+pipeline:
+    name: "TF2 Retrain Flowers"
+    description: "TF2 Retrain Flowers"
+    package: "pipeline.py"
+datasets:
+    - name: "DS1 name"
+      type: remote
+      url: "https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz"
+      makeLocalCopy: true
+run:
+    name: "My Run"
+    parameters:
+        epochs: 5
+        batch_size: 32
+debugging_features_flags:
+    createStorage: false
