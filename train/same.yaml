@@ -49,9 +49,10 @@ datasets:
       url: "https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz"
       makeLocalCopy: true
 run:
-    name: "My Run"
+    name: "Local Run"
     parameters:
-        epochs: 5
+        epochs: 1
         batch_size: 32
+        revision: HEAD
 debugging_features_flags:
     createStorage: false

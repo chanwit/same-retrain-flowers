@@ -1,10 +1,10 @@
 from kfp.components import OutputPath
 
+
 def preprocess_data(
 		output_path: OutputPath(str)
 	):
 	import requests
-	from pathlib import Path
 
 	# Load raw data
 	train_dataset_url = "https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz"
@@ -12,9 +12,21 @@ def preprocess_data(
 	data = requests.get(train_dataset_url).content
 
 	import os
+	import shutil
+	shutil.rmtree(output_path, ignore_errors=True)
 	os.mkdir(output_path)
+
+	# shutil.rmtree(cache_dir + "/datasets/flower_photos", ignore_errors=True)
 
 	with open(output_path + '/flower_photos.tgz', 'wb') as writer:
 		writer.write(data)
 
-	print("Done.")
+	print("Downloaded.")
+
+	# import tensorflow as tf
+	# tf.keras.utils.get_file(
+	#	'flower_photos',
+	#	'file://' + output_path + '/flower_photos.tgz',
+	#	untar=True,
+	#	cache_dir=cache_dir)
+	# print("Cached.")
