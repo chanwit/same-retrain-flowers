@@ -1,5 +1,5 @@
 from kfp.components import InputPath
-from typing import List
+from typing import List, Dict
 
 
 def select_best_model(
@@ -7,23 +7,49 @@ def select_best_model(
         model_names: List[str],
         revision: str,
 ):
-    print(shared_dir)
+
+    # this is a workaround for a bug when passing List[str] via pipeline
+    # the list was serialized as a string, so we need to re-parse it
     import ast
     model_names = ast.literal_eval(model_names)
-    print(model_names)
 
-    val_accuracy = {}
-
+    val_accuracy: Dict[str, float] = {}
     for model_name in model_names:
-        print(f"{shared_dir}/val_accuracy_{model_name}")
+        # print(f"{shared_dir}/val_accuracy_{model_name}")
         with open(shared_dir + "/val_accuracy_" + model_name, 'r') as reader:
             value = reader.readline()
             val_accuracy[model_name] = float(value)
-        model_path = f"{shared_dir}/model_{model_name}_{revision}"
-        print(model_path)
 
-    for model_name in model_names:
-        print(f"{model_name} val acc: {val_accuracy[model_name]}")
+    import pandas
+    # df = pandas.DataFrame.from_dict(val_accuracy, index=[0])
+    df = pandas.Series(val_accuracy)
+    print(df)
+
+    print("\n")
+
+    best_model_name = max(val_accuracy, key=val_accuracy.get)
+    print(f"Best Model: {best_model_name}")
+    model_path: str = f"{shared_dir}/model_{best_model_name}_{revision}"
+    bucket_path: str = f"mlpipeline/models/{best_model_name}/{revision}/"
+
+    from kubernetes import client, config
+    import base64
+    config.load_incluster_config()
+    v1 = client.CoreV1Api()
+    secret = v1.read_namespaced_secret("mlpipeline-minio-artifact", "kubeflow").data
+    accesskey = base64.b64decode(secret["accesskey"]).decode("utf-8")
+    secretkey = base64.b64decode(secret["secretkey"]).decode("utf-8")
+
+    import s3fs
+    s3 = s3fs.S3FileSystem(
+        anon=False,
+        key=accesskey,
+        secret=secretkey,
+        client_kwargs={
+            'endpoint_url': 'http://minio-service.kubeflow:9000'
+        }
+    )
+    s3.put(lpath=model_path, rpath=bucket_path, recursive=True)
 
     # choose best
     # push to bucket

@@ -15,10 +15,10 @@ def tf2_retrain(epochs=5, batch_size=32, revision='HEAD'):
     """Pipeline steps"""
 
     # environment = "local"
-    model_names = ["mobilenet_v3_small_100_224"]
+    # model_names = ["mobilenet_v3_small_100_224"]
 
     environment = "azure"
-    # model_names = ["mobilenet_v3_small_100_224", "inception_v3", "efficientnet_b3"]
+    model_names = ["mobilenet_v3_small_100_224", "inception_v3", "efficientnet_b3"]
 
     pvc_name = "same-retrain-pvc"
     if environment == "azure":
@@ -78,13 +78,15 @@ def tf2_retrain(epochs=5, batch_size=32, revision='HEAD'):
     select_best_model_factory = components.func_to_container_op(
         func=select_best_model.select_best_model,
         base_image="tensorflow/tensorflow:2.5.0",
-        packages_to_install=['tensorflow-hub==0.12.0', 'matplotlib==3.2.2', 'scipy==1.4.1', 'Pillow==7.1.2']
+        packages_to_install=['tensorflow-hub==0.12.0', 'matplotlib==3.2.2', 'scipy==1.4.1', 'Pillow==7.1.2', 'kubernetes', 'pandas', 's3fs']
     )
     operations["select_best_model"] = select_best_model_factory(
         shared_dir="/shared",
         model_names=model_names,  # it gets serialized as STR
         revision=revision,
     )
+    # no cache
+    operations["select_best_model"].execution_options.caching_strategy.max_cache_staleness = "P0D"
     operations["select_best_model"].add_pvolumes({"/shared": vop.volume})
     for model_name in model_names:
         operations["select_best_model"].after(operations[model_name])
