@@ -85,7 +85,7 @@ spec:
       serviceAccountName: pipeline-runner
       containers:
       - name: app
-        image: quay.io/chanwit/retrain-demo-app:latest
+        image: quay.io/chanwit/retrain-demo-app:v0.1.0
         command: ["/usr/local/bin/streamlit"]
         args: ["run", "app.py"]
         env:
