@@ -34,7 +34,7 @@ jobs:
           body: |
             Promote ${{ env.SHORT_SHA }} to production
             ENV: PROD
-          branch: promote/model-{{ env.SHORT_SHA }}-to-prod
+          branch: promote/model-${{ env.SHORT_SHA }}-to-prod
           delete-branch: true
           labels: |
             automation
