@@ -937,8 +937,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    service.beta.kubernetes.io/azure-dns-label-name: f47dc4f41d8ce51e6cfc
   labels:
     application-crd-id: kubeflow-pipelines
   name: minio-service
@@ -952,7 +950,7 @@ spec:
   selector:
     app: minio
     application-crd-id: kubeflow-pipelines
-  type: LoadBalancer
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: Service
