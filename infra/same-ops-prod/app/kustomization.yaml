@@ -1,4 +1,12 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+namespace: kubeflow
 resources:
-- generated.yaml
+- deploy.yaml
+configMapGenerator:
+- literals:
+  - model-revision=ee49ad5c5ad94e0a0758ae709c9e30b743c7d03d
+  - tag-name=v0.2.6
+  name: model-config
+  options:
+    disableNameSuffixHash: true
