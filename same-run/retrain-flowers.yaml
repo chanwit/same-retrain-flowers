@@ -3,7 +3,7 @@ apiVersion: source.toolkit.fluxcd.io/v1beta1
 kind: GitRepository
 metadata:
   name: retrain-flower
-  namespace: same-system
+  namespace: kubeflow
 spec:
   interval: 1m0s
   ref:
@@ -14,7 +14,7 @@ apiVersion: program.projectsame.io/v1alpha1
 kind: SameRun
 metadata:
   name: retrain-flower
-  namespace: same-system
+  namespace: kubeflow
 spec:
   interval: 1m0s
   path: ./train
