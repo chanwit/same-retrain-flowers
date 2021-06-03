@@ -14,11 +14,11 @@ from kubernetes import client as k8s
 def tf2_retrain(epochs=5, batch_size=32, revision='HEAD'):
     """Pipeline steps"""
 
-    environment = "local"
-    model_names = ["mobilenet_v3_small_100_224"]
+    # environment = "local"
+    # model_names = ["mobilenet_v3_small_100_224"]
 
-    # environment = "azure"
-    # model_names = ["mobilenet_v3_small_100_224", "inception_v3", "efficientnet_b3"]
+    environment = "azure"
+    model_names = ["mobilenet_v3_small_100_224", "inception_v3", "efficientnet_b3"]
 
     pvc_name = "retrain-pvc"
     if environment == "azure":
