@@ -1,0 +1,32 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: Bucket
+metadata:
+  name: mlpipeline
+  namespace: kubeflow
+spec:
+  bucketName: mlpipeline
+  endpoint: minio-service.kubeflow:9000
+  insecure: true
+  interval: 1m0s
+  provider: generic
+  ignore: |
+    # exclude all
+    /*
+    # include deploy dir
+    !/deploy
+  secretRef:
+    name: mlpipeline-minio-artifact
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+kind: Kustomization
+metadata:
+  name: retrain-ui
+  namespace: kubeflow
+spec:
+  interval: 1m0s
+  path: ./deploy/
+  prune: true
+  sourceRef:
+    kind: Bucket
+    name: mlpipeline

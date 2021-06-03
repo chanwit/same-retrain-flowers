@@ -21,7 +21,7 @@ jobs:
           echo "TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
       - name: update model revision
         run: |
-          cd prod
+          cd infra/same-ops-prod/app
           rm kustomization.yaml
           touch kustomization.yaml
           kustomize edit add resource deploy.yaml

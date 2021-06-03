@@ -1,0 +1,46 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+kind: Kustomization
+metadata:
+  name: same-kfp-cluster-scoped
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  path: ./infra/same-ops-prod/kfp-cluster-scoped
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  validation: client
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+kind: Kustomization
+metadata:
+  name: same-kfp
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  path: ./infra/same-ops-prod/kfp
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  validation: client
+  dependsOn:
+    - name: same-kfp-cluster-scoped
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+kind: Kustomization
+metadata:
+  name: retrain-ui-app
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  path: ./infra/same-ops-prod/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  validation: client
+  dependsOn:
+    - name: same-kfp
