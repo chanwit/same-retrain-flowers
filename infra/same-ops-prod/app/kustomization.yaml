@@ -5,8 +5,8 @@ resources:
 - deploy.yaml
 configMapGenerator:
 - literals:
-  - model-revision=ee49ad5c5ad94e0a0758ae709c9e30b743c7d03d
-  - tag-name=v0.2.6
+  - model-revision=cd07ce034c9578a88b6e2244ce0813a6fcca8b49
+  - tag-name=v0.3.0
   name: model-config
   options:
     disableNameSuffixHash: true
