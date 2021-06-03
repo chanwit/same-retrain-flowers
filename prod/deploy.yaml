@@ -26,5 +26,10 @@ spec:
             configMapKeyRef:
               name: model-config
               key: model-revision
+        - name: TAG_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: model-config
+              key: tag-name
         - name: MODEL_ENDPOINT_URL
           value: http://f47dc4f41d8ce51e6cfc.southeastasia.cloudapp.azure.com:9000

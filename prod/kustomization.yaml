@@ -5,6 +5,7 @@ resources:
 configMapGenerator:
 - literals:
   - model-revision=6487619f080f8de322f655356f04759984b575ba
+  - tag-name=v0.0.0
   name: model-config
   options:
     disableNameSuffixHash: true
