@@ -23,10 +23,16 @@ jobs:
         run: |
           cd infra/same-ops-prod/app
           rm kustomization.yaml
+          rm generated.yaml || true
           touch kustomization.yaml
           kustomize edit add resource deploy.yaml
           kustomize edit add configmap model-config --from-literal=model-revision=${{ github.sha }} --disableNameSuffixHash
           kustomize edit add configmap model-config --from-literal=tag-name=${{ env.TAG }} --disableNameSuffixHash
+          kustomize build . > generated.yaml
+
+          rm kustomization.yaml
+          touch kustomization.yaml
+          kustomize edit add resource generated.yaml
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
         with:
