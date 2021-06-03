@@ -53,6 +53,8 @@ def select_best_model(
         file.write(best_model_name)
     s3.put(lpath=f"{shared_dir}/{revision}", rpath=f"mlpipeline/models/metadata/{revision}")
 
+    print("Best model saved.")
+
     # Save the model using keras export_saved_model function.
     # Note that specifically for TF-Serve,
     # the output directory should be structure as model_name/model_version/saved_model.
@@ -80,16 +82,22 @@ spec:
       labels:
         app: retrain-ui
     spec:
+      serviceAccountName: pipeline-runner
       containers:
       - name: app
         image: quay.io/chanwit/retrain-demo-app:latest
         command: ["/usr/local/bin/streamlit"]
         args: ["run", "app.py"]
         env:
-        - name: MODEL_NAME
-          value: {best_model_name}
+        - name: TAG_NAME
+          value: v0.0.0
         - name: MODEL_REVISION
           value: {revision}
         - name: MODEL_ENDPOINT_URL
-          value: http://f47dc4f41d8ce51e6cfc.southeastasia.cloudapp.azure.com:9000    
+          value: http://minio-service.kubeflow:9000  # http://f47dc4f41d8ce51e6cfc.southeastasia.cloudapp.azure.com:9000
 """
+    with open(f"{shared_dir}/deploy.yaml", "w") as file:
+      file.write(deploy)
+    s3.put(lpath=f"{shared_dir}/deploy.yaml", rpath=f"mlpipeline/deploy/deploy.yaml")
+
+    print("Deployment generated to the bucket.")
