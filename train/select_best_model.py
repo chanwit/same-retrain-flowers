@@ -7,7 +7,6 @@ def select_best_model(
         model_names: List[str],
         revision: str,
 ):
-
     # this is a workaround for a bug when passing List[str] via pipeline
     # the list was serialized as a string, so we need to re-parse it
     import ast
@@ -50,10 +49,47 @@ def select_best_model(
         }
     )
     s3.put(lpath=model_path, rpath=bucket_path, recursive=True)
+    with open(f"{shared_dir}/{revision}", "w") as file:
+        file.write(best_model_name)
+    s3.put(lpath=f"{shared_dir}/{revision}", rpath=f"mlpipeline/models/metadata/{revision}")
 
-    # choose best
-    # push to bucket
     # Save the model using keras export_saved_model function.
     # Note that specifically for TF-Serve,
     # the output directory should be structure as model_name/model_version/saved_model.
     # tf.keras.experimental.export_saved_model(model, model_version_path)
+
+    #
+    # expect that kubeflow already there in the deploy cluster
+    #
+    deploy = f"""
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: retrain-ui
+  name: retrain-ui
+  namespace: kubeflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: retrain-ui
+  template:
+    metadata:
+      labels:
+        app: retrain-ui
+    spec:
+      containers:
+      - name: app
+        image: quay.io/chanwit/retrain-demo-app:latest
+        command: ["/usr/local/bin/streamlit"]
+        args: ["run", "app.py"]
+        env:
+        - name: MODEL_NAME
+          value: {best_model_name}
+        - name: MODEL_REVISION
+          value: {revision}
+        - name: MODEL_ENDPOINT_URL
+          value: http://f47dc4f41d8ce51e6cfc.southeastasia.cloudapp.azure.com:9000    
+"""

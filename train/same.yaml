@@ -6,7 +6,7 @@ pipeline:
     description: "TF2 Retrain Flowers"
     package: "pipeline.py"
 run:
-    name: "Run 4"
+    name: "Local Run"
     parameters:
         epochs: 1
         batch_size: 32
