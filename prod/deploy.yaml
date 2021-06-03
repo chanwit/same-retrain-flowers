@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: retrain-ui
+  name: retrain-ui
+  namespace: kubeflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: retrain-ui
+  template:
+    metadata:
+      labels:
+        app: retrain-ui
+    spec:
+      containers:
+      - name: app
+        image: quay.io/chanwit/retrain-demo-app
+        command: ["/usr/local/bin/streamlit"]
+        args: ["run", "app.py"]
+        env:
+        - name: MODEL_REVISION
+          valueFrom:
+            configMapKeyRef:
+              name: model-config
+              key: model-revision
+        - name: MODEL_ENDPOINT_URL
+          value: http://f47dc4f41d8ce51e6cfc.southeastasia.cloudapp.azure.com:9000

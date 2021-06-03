@@ -1,0 +1,40 @@
+name: run
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check out
+        uses: actions/checkout@v2
+      - name: install kustomize
+        uses: imranismail/setup-kustomize@v1
+        with:
+          kustomize-version: "3.9.2"
+      - name: update model revision
+        run: |
+          cd prod
+          rm kustomization.yaml
+          touch kustomization.yaml
+          kustomize edit add resource deploy.yaml
+          kustomize edit add configmap model-config --from-literal=model-revision=${{ github.sha }} --disableNameSuffixHash
+      - name: Get Metadata
+        run: |
+          echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          commit-message: "promote ${{ env.SHORT_SHA }} to prod"
+          base: main
+          title: "Promote ${{ env.SHORT_SHA }} to production"
+          body: |
+            Promote ${{ env.SHORT_SHA }} to production
+            ENV: PROD
+          branch: promote/model-{{ env.SHORT_SHA }}-to-prod
+          delete-branch: true
+          labels: |
+            automation
