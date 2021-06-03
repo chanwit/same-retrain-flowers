@@ -1,7 +1,7 @@
 apiVersion: v1
 data:
-  model-revision: d5d2c266ade8282d75c6cee91285b9fe11fd41b0
-  tag-name: v0.2.4
+  model-revision: 47d18b2417fcd8de96316d1927431d973cd44e55
+  tag-name: v0.2.5
 kind: ConfigMap
 metadata:
   name: model-config
