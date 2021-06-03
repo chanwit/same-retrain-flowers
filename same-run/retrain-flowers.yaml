@@ -1,0 +1,24 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  name: retrain-flower
+  namespace: same-system
+spec:
+  interval: 1m0s
+  ref:
+    branch: main
+  url: https://github.com/chanwit/same-retrain-flowers
+---
+apiVersion: program.projectsame.io/v1alpha1
+kind: SameRun
+metadata:
+  name: retrain-flower
+  namespace: same-system
+spec:
+  interval: 1m0s
+  path: ./train
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: retrain-flower
