@@ -15,6 +15,7 @@ spec:
       labels:
         app: retrain-ui
     spec:
+      serviceAccountName: pipeline-runner
       containers:
       - name: app
         image: quay.io/chanwit/retrain-demo-app
