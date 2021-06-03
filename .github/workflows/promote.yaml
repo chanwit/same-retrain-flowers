@@ -15,6 +15,10 @@ jobs:
         uses: imranismail/setup-kustomize@v1
         with:
           kustomize-version: "3.9.2"
+      - name: Get Metadata
+        run: |
+          echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
+          echo "TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
       - name: update model revision
         run: |
           cd prod
@@ -22,18 +26,17 @@ jobs:
           touch kustomization.yaml
           kustomize edit add resource deploy.yaml
           kustomize edit add configmap model-config --from-literal=model-revision=${{ github.sha }} --disableNameSuffixHash
-      - name: Get Metadata
-        run: |
-          echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
+          kustomize edit add configmap model-config --from-literal=tag-name=${{ env.TAG }} --disableNameSuffixHash
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
         with:
-          commit-message: "promote ${{ env.SHORT_SHA }} to prod"
+          commit-message: "promote model built by ${{ env.SHORT_SHA }} to prod"
           base: main
-          title: "Promote ${{ env.SHORT_SHA }} to production"
+          title: "Promote ${{ env.SHORT_SHA }} to prod"
           body: |
             Promote ${{ env.SHORT_SHA }} to production
             ENV: PROD
+            TAG: ${{ env.TAG }}
           branch: promote/model-${{ env.SHORT_SHA }}-to-prod
           delete-branch: true
           labels: |
