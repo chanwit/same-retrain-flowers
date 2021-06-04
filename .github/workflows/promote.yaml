@@ -14,6 +14,7 @@ jobs:
         with:
           repository: chanwit/SAME-Flux
           ref: main
+          token: ${{ secrets.SAME_GITOPS_GITHUB_TOKEN }}
       - name: install kustomize
         uses: imranismail/setup-kustomize@v1
         with:
