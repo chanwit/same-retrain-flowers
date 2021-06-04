@@ -49,3 +49,4 @@ jobs:
           delete-branch: true
           labels: |
             automation
+          token: ${{ secrets.SAME_GITOPS_GITHUB_TOKEN }}
